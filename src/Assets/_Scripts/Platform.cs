@@ -26,6 +26,7 @@ internal sealed class Platform : MonoBehaviour {
     #region Private Fields
 
     private Renderer graphicsRenderer;
+    private BoxCollider attachedCollider;
 
     #endregion
 
@@ -56,6 +57,7 @@ internal sealed class Platform : MonoBehaviour {
 
     private void InitializeRequiredComponents() {
         graphicsRenderer = transform.Find("Graphics").GetComponent<MeshRenderer>();
+        attachedCollider = transform.Find("Collider").GetComponent<BoxCollider>();
     }
 
     private void InitializeSize() {
@@ -70,6 +72,17 @@ internal sealed class Platform : MonoBehaviour {
             PlatformManager.Instance.Recycle(gameObject);
             PlatformManager.Instance.ActivateNext();
         }
+
+        ToggleTriggerWithPlayerPosition();
+    }
+
+    private void ToggleTriggerWithPlayerPosition() {
+        // If the player is below the platform or if it's out if it's bounds in X, make it trigger otherwise collider
+        attachedCollider.isTrigger = PlayerMover.Instance.transform.position.y < transform.position.y
+                                     || PlayerMover.Instance.transform.position.x
+                                     < (transform.position.x - transform.localScale.x / 2)
+                                     || PlayerMover.Instance.transform.position.x
+                                     > (transform.position.x + transform.localScale.x / 2);
     }
 
     #endregion
