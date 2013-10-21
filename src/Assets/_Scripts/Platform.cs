@@ -25,6 +25,8 @@ internal sealed class Platform : MonoBehaviour {
 
     #region Private Fields
 
+    private Renderer graphicsRenderer;
+
     #endregion
 
     #endregion
@@ -48,12 +50,19 @@ internal sealed class Platform : MonoBehaviour {
     #region Methods
 
     private void OnEnable() {
+        InitializeRequiredComponents();
         InitializeSize();
     }
 
+    private void InitializeRequiredComponents() {
+        graphicsRenderer = transform.Find("Graphics").GetComponent<MeshRenderer>();
+    }
+
     private void InitializeSize() {
-        var randomSize = new Vector3(Random.Range(MinimumSize, MaximumSize), 1, 1);
+        var randomSize = new Vector3(Random.Range(MinimumSize, MaximumSize), 2, 2);
         transform.localScale = randomSize;
+
+        graphicsRenderer.material.SetTextureScale("_MainTex", randomSize / 2);
     }
 
     private void Update() {

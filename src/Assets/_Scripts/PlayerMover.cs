@@ -36,9 +36,7 @@ internal sealed class PlayerMover : MonoBehaviour {
     private void On_JoystickMoveStart(MovingJoystick move) {}
 
     // Occurs when joystick is moving.
-    private void On_JoystickMove(MovingJoystick move) {
-        Move(move.joystickValue);
-    }
+    private void On_JoystickMove(MovingJoystick move) {}
 
     // Occurs when joystick is ending to move,
     private void On_JoystickMoveEnd(MovingJoystick move) {}
@@ -54,11 +52,24 @@ internal sealed class PlayerMover : MonoBehaviour {
 
     // Occurs when the button is down for the first time.
     private void On_ButtonDown(string buttonName) {
-        Jump(JumpForce);
+        switch(buttonName) {
+            case "ButtonJump":
+                Jump(JumpForce);
+                break;
+        }
     }
 
     // Occurs when the button is pressed
-    private void On_ButtonPress(string buttonName) {}
+    private void On_ButtonPress(string buttonName) {
+        switch(buttonName) {
+            case "ButtonLeft":
+                Move(-1f);
+                break;
+            case "ButtonRight":
+                Move(1f);
+                break;
+        }
+    }
 
     // Occurs when the button is up
     private void On_ButtonUp(string buttonName) {}
@@ -163,15 +174,15 @@ internal sealed class PlayerMover : MonoBehaviour {
         }
     }
 
-    private void Move(Vector2 force) {
-        Vector3 movementVector;
+    private void Move(float value) {
+        float movementForce;
 
         if(IsGrounded)
-            movementVector = force * MovementSpeed * Time.deltaTime;
+            movementForce = value * MovementSpeed * Time.deltaTime;
         else
-            movementVector = force * AirMovementSpeed * Time.deltaTime;
+            movementForce = value * AirMovementSpeed * Time.deltaTime;
 
-        rigidbody.AddForce(movementVector, ForceMode.VelocityChange);
+        rigidbody.AddForce(new Vector3(movementForce, 0, 0), ForceMode.VelocityChange);
     }
 
     private void Jump(float force) {
@@ -194,7 +205,7 @@ internal sealed class PlayerMover : MonoBehaviour {
 
     private void UpdateEditorInput() {
         var movementVector = new Vector2(Input.GetAxis("Horizontal"), 0);
-        Move(movementVector);
+        Move(movementVector.x);
 
         if(Input.GetKeyDown(KeyCode.Space))
             Jump(JumpForce);
@@ -206,10 +217,34 @@ internal sealed class PlayerMover : MonoBehaviour {
     }
 
     private void UpdateIsGroundedStatus() {
-        var isGroundedRay = new Ray(transform.position + Vector3.up * 0.5f, Vector3.down);
-        IsGrounded = Physics.Raycast(isGroundedRay, distance: isGroundedHeight);
-
+        // For debugging purposes
         Debug.DrawRay(transform.position, Vector3.down * isGroundedHeight);
+
+        // Cast the first ray directly below, return if successful
+        var isGroundedRay = new Ray(transform.position + Vector3.up * 0.5f, Vector3.down);
+
+        if(Physics.Raycast(isGroundedRay, distance: isGroundedHeight)) {
+            IsGrounded = true;
+            return;
+        }
+
+        // Cast the second ray towards left return if successful
+        isGroundedRay = new Ray(transform.position + new Vector3(-0.5f, 0.5f, 0f), Vector3.down);
+
+        if(Physics.Raycast(isGroundedRay, distance: isGroundedHeight)) {
+            IsGrounded = true;
+            return;
+        }
+
+        // Cast the third ray towards right return if successful
+        isGroundedRay = new Ray(transform.position + new Vector3(0.5f, 0.5f, 0f), Vector3.down);
+
+        if(Physics.Raycast(isGroundedRay, distance: isGroundedHeight)) {
+            IsGrounded = true;
+            return;
+        }
+
+        IsGrounded = false;
     }
 
     private void AmplifyGravity() {

@@ -48,7 +48,6 @@ internal sealed class PlatformManager : MonoBehaviour {
     #region Private Fields
 
     private readonly List<GameObject> platformPool = new List<GameObject>();
-    private int activatedPlatformCount;
     private float leftmostViewportPosition;
     private float rightmostViewportPosition;
 
@@ -102,8 +101,7 @@ internal sealed class PlatformManager : MonoBehaviour {
             platformPool.Add(platform);
         }
 
-        for(var i = 0; i < ActivePlatformCount; ++i)
-            ActivateNext();
+        for(var i = 0; i < ActivePlatformCount; i++) ActivateNext();
     }
 
     internal void ActivateNext() {
@@ -125,11 +123,6 @@ internal sealed class PlatformManager : MonoBehaviour {
                     nextPlatform.transform.position.z);
 
         platformPool.Add(nextPlatform);
-
-        // If all the platforms in the pool are used, start recycling the oldest ones to use as new
-        activatedPlatformCount++;
-        if(activatedPlatformCount >= ActivePlatformCount)
-            RecycleOldest();
     }
 
     private void RecycleOldest() {
