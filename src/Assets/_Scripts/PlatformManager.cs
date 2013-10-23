@@ -78,6 +78,13 @@ internal sealed class PlatformManager : MonoBehaviour {
         set { platformPositionOffset = value; }
     }
 
+    [SerializeField] private float screenBorder;
+
+    internal float ScreenBorder {
+        get { return screenBorder; }
+        set { screenBorder = value; }
+    }
+
     #endregion
 
     #region Methods
@@ -114,12 +121,12 @@ internal sealed class PlatformManager : MonoBehaviour {
                 PlatformPositionOffset.y);
         nextPlatform.transform.position = platformPool[platformPool.Count - 1].transform.position + randomPositionOffsetVector;
 
-        // Don't put platforms outside the viewport
-        if(nextPlatform.transform.position.x < leftmostViewportPosition)
-            nextPlatform.transform.position = new Vector3(leftmostViewportPosition, nextPlatform.transform.position.y,
+        // Don't put platforms outside the limits
+        if(nextPlatform.transform.position.x < leftmostViewportPosition + screenBorder)
+            nextPlatform.transform.position = new Vector3(leftmostViewportPosition + screenBorder, nextPlatform.transform.position.y,
                     nextPlatform.transform.position.z);
-        if(nextPlatform.transform.position.x > rightmostViewportPosition)
-            nextPlatform.transform.position = new Vector3(rightmostViewportPosition, nextPlatform.transform.position.y,
+        if(nextPlatform.transform.position.x > rightmostViewportPosition - screenBorder)
+            nextPlatform.transform.position = new Vector3(rightmostViewportPosition - screenBorder, nextPlatform.transform.position.y,
                     nextPlatform.transform.position.z);
 
         platformPool.Add(nextPlatform);

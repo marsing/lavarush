@@ -84,7 +84,7 @@ internal sealed class PlayerMover : MonoBehaviour {
 
     #region Constant Fields
 
-    private const float isGroundedHeight = 0.5f;
+    private const float isGroundedHeight = .5f;
 
     #endregion
 
@@ -189,6 +189,8 @@ internal sealed class PlayerMover : MonoBehaviour {
         if(!IsGrounded)
             return;
 
+        rigidbody.velocity = new Vector3(rigidbody.velocity.x, 0, rigidbody.velocity.z);
+
         var jumpVector = new Vector3(0, force, 0);
         rigidbody.AddForce(jumpVector, ForceMode.VelocityChange);
     }
@@ -248,7 +250,7 @@ internal sealed class PlayerMover : MonoBehaviour {
     }
 
     private void AmplifyGravity() {
-        rigidbody.AddForce(Vector3.up * GravityCoeff, ForceMode.VelocityChange);
+        rigidbody.AddForce(Vector3.up * GravityCoeff, ForceMode.Acceleration);
     }
 
     #endregion

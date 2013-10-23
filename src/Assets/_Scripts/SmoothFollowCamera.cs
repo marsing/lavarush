@@ -104,7 +104,7 @@ internal sealed class SmoothFollowCamera : MonoBehaviour {
     private void UpdatePosition() {
         if(!TargetCamera && !FollowTarget) return;
 
-        var desiredPosition = new Vector3(0, FollowTarget.position.y, 0) + PositionOffset;
+        var desiredPosition = new Vector3(0, FollowTarget.position.y, FollowTarget.position.z) + PositionOffset;
         TargetCamera.transform.position = Vector3.Lerp(TargetCamera.transform.position, desiredPosition, Damping * Time.deltaTime);
     }
 
@@ -115,7 +115,7 @@ internal sealed class SmoothFollowCamera : MonoBehaviour {
 
     internal bool IsBelowScreen(Transform targetTransform) {
         if(!TargetCamera) return false;
-        return TargetCamera.WorldToScreenPoint(targetTransform.position).y < 0;
+        return TargetCamera.WorldToScreenPoint(targetTransform.position).y / 2 < 0;
     }
 
     #endregion

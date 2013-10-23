@@ -25,8 +25,8 @@ internal sealed class Platform : MonoBehaviour {
 
     #region Private Fields
 
-    private Renderer graphicsRenderer;
     private BoxCollider attachedCollider;
+    private GameObject[] platforms;
 
     #endregion
 
@@ -34,37 +34,39 @@ internal sealed class Platform : MonoBehaviour {
 
     #region Properties
 
-    [SerializeField] private float minimumSize;
-
-    internal float MinimumSize {
-        get { return minimumSize; }
-    }
-
-    [SerializeField] private float maximumSize;
-
-    internal float MaximumSize {
-        get { return maximumSize; }
-    }
-
     #endregion
 
     #region Methods
 
     private void OnEnable() {
         InitializeRequiredComponents();
-        InitializeSize();
+        PopulatePlatformsArray();
+        InitializePlatform();
     }
 
     private void InitializeRequiredComponents() {
-        graphicsRenderer = transform.Find("Graphics").GetComponent<MeshRenderer>();
         attachedCollider = transform.Find("Collider").GetComponent<BoxCollider>();
     }
 
-    private void InitializeSize() {
-        var randomSize = new Vector3(Random.Range(MinimumSize, MaximumSize), 2, 2);
-        transform.localScale = randomSize;
+    private void PopulatePlatformsArray() {
+        var graphics = transform.Find("Graphics");
+        platforms = new GameObject[graphics.childCount];
 
-        graphicsRenderer.material.SetTextureScale("_MainTex", randomSize / 2);
+        for(var platformIndex = 0; platformIndex < platforms.Length; platformIndex++) {
+            platforms[platformIndex] = graphics.GetChild(platformIndex).gameObject;
+            platforms[platformIndex].SetActive(false);
+        }
+    }
+
+    private void InitializePlatform() {
+        var randomPlatform = Random.Range(0, platforms.Length);
+        platforms[randomPlatform].SetActive(true);
+
+        var scaleDice = Random.Range(-1, 1);
+        platforms[randomPlatform].transform.localScale = new Vector3(scaleDice == -1 ? -1 : 1, 1, 1);
+
+        // Resize the collider to match the platform size
+        attachedCollider.size = new Vector3(((randomPlatform + 1) * 2), 1, 1);
     }
 
     private void Update() {
@@ -78,11 +80,11 @@ internal sealed class Platform : MonoBehaviour {
 
     private void ToggleTriggerWithPlayerPosition() {
         // If the player is below the platform or if it's out if it's bounds in X, make it trigger otherwise collider
-        attachedCollider.isTrigger = PlayerMover.Instance.transform.position.y < transform.position.y
+        attachedCollider.isTrigger = PlayerMover.Instance.transform.position.y < attachedCollider.transform.position.y
                                      || PlayerMover.Instance.transform.position.x
-                                     < (transform.position.x - transform.localScale.x / 2)
+                                     < (attachedCollider.transform.position.x - attachedCollider.size.x / 2)
                                      || PlayerMover.Instance.transform.position.x
-                                     > (transform.position.x + transform.localScale.x / 2);
+                                     > (attachedCollider.transform.position.x + attachedCollider.size.x / 2);
     }
 
     #endregion
